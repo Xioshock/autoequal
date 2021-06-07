@@ -20,8 +20,7 @@ class AutoequalGenerator extends GeneratorForAnnotation<Autoequal> {
   final _equatableMixin = const TypeChecker.fromRuntime(EquatableMixin);
 
   @override
-  FutureOr<String> generateForAnnotatedElement(
-      Element element, ConstantReader annotation, BuildStep buildStep) {
+  FutureOr<String> generateForAnnotatedElement(Element element, ConstantReader annotation, BuildStep buildStep) {
     final classElement = _ensureReadyForAutoequalClass(element);
 
     final generated = <String>[];
@@ -53,13 +52,11 @@ class AutoequalGenerator extends GeneratorForAnnotation<Autoequal> {
     return classElement;
   }
 
-  String? _generateMixinIfSpecified(
-      ClassElement classElement, ConstantReader annotation) {
+  String? _generateMixinIfSpecified(ClassElement classElement, ConstantReader annotation) {
     final isMixin = annotation.read('mixin').boolValue;
 
     if (isMixin) {
-      final onTypeName =
-          _isEquatable(classElement) ? 'Equatable' : 'EquatableMixin';
+      final onTypeName = _isEquatable(classElement) ? 'Equatable' : 'EquatableMixin';
       return _AutoequalMixinTemplate.generate(classElement.name, onTypeName);
     } else {
       return null;
@@ -69,9 +66,7 @@ class AutoequalGenerator extends GeneratorForAnnotation<Autoequal> {
   String _generateExtension(ClassElement classElement) {
     final name = classElement.name;
 
-    final autoEqualFields = classElement.fields
-        .where((field) => _isNotIgnoredField(field))
-        .map((e) => e.name);
+    final autoEqualFields = classElement.fields.where((field) => _isNotIgnoredField(field)).map((e) => e.name);
 
     return _AutoequalExtensionTemplate.generate(name, autoEqualFields);
   }
@@ -79,10 +74,9 @@ class AutoequalGenerator extends GeneratorForAnnotation<Autoequal> {
   bool _isNotIgnoredField(FieldElement element) => !(element.isStatic ||
       element.name == 'props' ||
       _ignore.hasAnnotationOfExact(element) ||
-      _ignore.hasAnnotationOfExact(element.getter));
+      (element.getter != null && _ignore.hasAnnotationOfExact(element.getter!)));
 
-  bool _isNotUseEquatable(ClassElement element) =>
-      !(_isEquatable(element) || _isWithEquatableMixin(element));
+  bool _isNotUseEquatable(ClassElement element) => !(_isEquatable(element) || _isWithEquatableMixin(element));
 
   bool _isEquatable(ClassElement element) => _equatable.isSuperOf(element);
 
